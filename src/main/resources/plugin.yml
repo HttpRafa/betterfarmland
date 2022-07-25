@@ -1,0 +1,6 @@
+name: BetterFarmland
+version: 1.0.0
+main: de.rafael.plugins.better.farmland.BetterFarmland
+api-version: 1.16
+authors: [ HttpRafa ]
+description: Protects your farmland from players and entities
