@@ -81,7 +81,7 @@ public final class BetterFarmland extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.updateChecker = new UpdateChecker(-1);
+        this.updateChecker = new UpdateChecker(103677);
         if(this.configManager.isbStats()) {
             int pluginId = 15917;
             Metrics metrics = new Metrics(this, pluginId);
