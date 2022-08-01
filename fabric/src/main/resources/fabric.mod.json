@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "better_farmland",
+  "version": "${version}",
+
+  "name": "Better Farmland",
+  "description": "Protects your farmland from players and entities",
+  "authors": [
+    "HttpRafa"
+  ],
+  "contact": {
+    "homepage": "https://www.spigotmc.org/resources/better-farmland.103677//",
+    "sources": "https://github.com/HttpRafa/BetterFarmland"
+  },
+
+  "license": "GNU General Public License v3.0",
+  "icon": "assets/better_farmland/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "de.rafael.mods.better.farmland.BetterFarmland"
+    ]
+  },
+  "mixins": [
+    "better_farmland.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.14.6",
+    "fabric": "*",
+    "minecraft": "~1.19",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
