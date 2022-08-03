@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.rafael.plugins.better.farmland.config.lib;
+package de.rafael.mods.better.farmland.config.lib;
 
 //------------------------------
 //
@@ -106,6 +106,7 @@ public class JsonConfiguration {
 
         if(!file.exists()) {
             try {
+
                 file.createNewFile();
 
                 FileWriter fileWriter = new FileWriter(file);
@@ -122,7 +123,7 @@ public class JsonConfiguration {
 
                 JsonReader jsonReader = new JsonReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 
-                jsonObject = new JsonParser().parse(jsonReader).getAsJsonObject();
+                jsonObject = JsonParser.parseReader(jsonReader).getAsJsonObject();
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();

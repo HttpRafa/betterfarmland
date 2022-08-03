@@ -28,51 +28,55 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.rafael.plugins.better.farmland.stats;
+package de.rafael.mods.better.farmland.classes;
 
 //------------------------------
 //
 // This class was developed by Rafael K.
-// On 07/25/2022 at 8:37 AM
+// On 07/16/2022 at 2:55 PM
 // In the project BetterFarmland
 //
 //------------------------------
 
-import de.rafael.plugins.better.farmland.config.lib.JsonConfiguration;
+import net.minecraft.block.Material;
+import net.minecraft.client.sound.Sound;
 
-import java.io.File;
+public record BlockChange(ChangeSound sound, Material from, Material to, ChangeDrop drop, int newAge) {
 
-public class PluginStats {
+    @Override
+    public String toString() {
+        return "BlockChange{" +
+                "sound=" + sound +
+                ", from=" + from +
+                ", to=" + to +
+                ", drop=" + drop +
+                ", newAge=" + newAge +
+                '}';
+    }
 
-    private int eventTriggered;
+    public record ChangeSound(Sound sound, float soundVolume, float soundPitch) {
 
-    public void load() {
-        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(new File("config//better_farmland/"), "stats.json");
-
-        if(!jsonConfiguration.getJson().has("eventTriggered")) {
-            jsonConfiguration.getJson().addProperty("eventTriggered", 0);
-            eventTriggered = 0;
-        } else {
-            eventTriggered = jsonConfiguration.getJson().get("eventTriggered").getAsInt();
+        @Override
+        public String toString() {
+            return "ChangeSound{" +
+                    "sound=" + sound +
+                    ", soundVolume=" + soundVolume +
+                    ", soundPitch=" + soundPitch +
+                    '}';
         }
 
-        jsonConfiguration.saveConfig();
     }
 
-    public void save() {
-        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(new File("config//better_farmland/"), "stats.json");
+    public record ChangeDrop(Material item, int amount) {
 
-        jsonConfiguration.getJson().addProperty("eventTriggered", this.eventTriggered);
+        @Override
+        public String toString() {
+            return "ChangeDrop{" +
+                    "item=" + item +
+                    ", amount=" + amount +
+                    '}';
+        }
 
-        jsonConfiguration.saveConfig();
-    }
-
-    public void triggered() {
-        eventTriggered++;
-    }
-
-    public int getEventTriggered() {
-        return eventTriggered;
     }
 
 }

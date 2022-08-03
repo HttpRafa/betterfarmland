@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.rafael.plugins.better.farmland.config;
+package de.rafael.mods.better.farmland.config;
 
 //------------------------------
 //
@@ -41,10 +41,13 @@ package de.rafael.plugins.better.farmland.config;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import de.rafael.plugins.better.farmland.config.lib.JsonConfiguration;
-import de.rafael.plugins.better.farmland.classes.BlockChange;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import de.rafael.mods.better.farmland.classes.BlockChange;
+import de.rafael.mods.better.farmland.config.lib.JsonConfiguration;
+import net.minecraft.block.Material;
+import net.minecraft.client.sound.Sound;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.registry.Registry;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -130,14 +133,15 @@ public class ConfigManager {
 
                 {
                     JsonObject sound = new JsonObject();
-                    sound.addProperty("sound", Sound.BLOCK_CROP_BREAK.name());
+                    SoundEvent defaultSound = SoundEvents.BLOCK_CROP_BREAK;
+                    sound.addProperty("sound", defaultSound.getId().getNamespace() + ":" + defaultSound.getId().getPath());
                     sound.addProperty("volume", 1f);
                     sound.addProperty("pitch", 1f);
                     example.add("sound", sound);
                 }
 
                 example.addProperty("from", 0);
-                example.addProperty("to", Material.AIR.name());
+                example.addProperty("to", 0); // TODO: Material.AIR
 
                 {
                     JsonObject drop = new JsonObject();
@@ -156,7 +160,8 @@ public class ConfigManager {
 
                 {
                     JsonObject sound = new JsonObject();
-                    sound.addProperty("sound", Sound.BLOCK_CROP_BREAK.name());
+                    SoundEvent defaultSound = SoundEvents.BLOCK_CROP_BREAK;
+                    sound.addProperty("sound", defaultSound.getId().getNamespace() + ":" + defaultSound.getId().getPath());
                     sound.addProperty("volume", 1f);
                     sound.addProperty("pitch", 1f);
                     example.add("sound", sound);
@@ -183,6 +188,7 @@ public class ConfigManager {
                 if(element.get("use").getAsBoolean()) {
                     BlockChange.ChangeSound sound = null;
                     BlockChange.ChangeDrop drop = null;
+                    /*
                     if(!element.get("sound").isJsonNull()) {
                         sound = new BlockChange.ChangeSound(Sound.valueOf(element.getAsJsonObject("sound").get("sound").getAsString()),
                                 element.getAsJsonObject("sound").get("volume").getAsFloat(),
@@ -194,9 +200,11 @@ public class ConfigManager {
                     }
                     Material from = Material.getMaterial(element.get("from").getAsString());
                     Material to = Material.getMaterial(element.get("to").getAsString());
+
                     int newAge = element.get("newAge").getAsInt();
                     BlockChange blockChange = new BlockChange(sound, from, to, drop, newAge);
                     this.changes.add(blockChange);
+                     */
                 }
             }
         }

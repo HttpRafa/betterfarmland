@@ -30,6 +30,7 @@
 
 package de.rafael.mods.better.farmland;
 
+import de.rafael.mods.better.farmland.config.ConfigManager;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +38,34 @@ import org.slf4j.LoggerFactory;
 public class BetterFarmland implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("better_farmland");
+	public static BetterFarmland INSTANCE;
+
+	private final String prefix = "§8➜ §6B§eetterFarmland §8● §7";
+
+	private ConfigManager configManager;
 
 	@Override
 	public void onInitialize() {
+		INSTANCE = this;
 
+		LOGGER.info(prefix + "§7Loading §eBetterFarmland §7version §6" + 0); // TODO: Version
+
+		this.configManager = new ConfigManager();
+
+		int amount = 1;
+		while (!this.configManager.load()) {
+			amount++;
+		}
+
+		LOGGER.info(prefix + "§7The config §aloaded §7in §e" + amount + " §7cycles§8.");
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public ConfigManager getConfigManager() {
+		return configManager;
 	}
 
 }
