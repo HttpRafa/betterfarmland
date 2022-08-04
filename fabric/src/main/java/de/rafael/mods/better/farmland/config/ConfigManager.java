@@ -43,15 +43,17 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.rafael.mods.better.farmland.classes.BlockChange;
 import de.rafael.mods.better.farmland.config.lib.JsonConfiguration;
-import net.minecraft.block.Material;
-import net.minecraft.client.sound.Sound;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ConfigManager {
@@ -85,22 +87,22 @@ public class ConfigManager {
             return false;
         }
 
-        if(!jsonConfiguration.getJson().has("plugin")) {
-            jsonConfiguration.getJson().add("plugin", new JsonObject());
+        if(!jsonConfiguration.getJson().has("mod")) {
+            jsonConfiguration.getJson().add("mod", new JsonObject());
         }
 
         if(!jsonConfiguration.getJson().has("event")) {
             jsonConfiguration.getJson().add("event", new JsonObject());
         }
 
-        // Plugin
-        if(!jsonConfiguration.getJson().getAsJsonObject("plugin").has("ignoreUpdates")) {
-            jsonConfiguration.getJson().getAsJsonObject("plugin").addProperty("ignoreUpdates", this.ignoreUpdates);
+        // Mod
+        if(!jsonConfiguration.getJson().getAsJsonObject("mod").has("ignoreUpdates")) {
+            jsonConfiguration.getJson().getAsJsonObject("mod").addProperty("ignoreUpdates", this.ignoreUpdates);
             jsonConfiguration.saveConfig();
 
             return false;
         } else {
-            this.ignoreUpdates = jsonConfiguration.getJson().getAsJsonObject("plugin").get("ignoreUpdates").getAsBoolean();
+            this.ignoreUpdates = jsonConfiguration.getJson().getAsJsonObject("mod").get("ignoreUpdates").getAsBoolean();
         }
 
         // Event
@@ -125,14 +127,14 @@ public class ConfigManager {
                 {
                     JsonObject sound = new JsonObject();
                     SoundEvent defaultSound = SoundEvents.BLOCK_CROP_BREAK;
-                    sound.addProperty("sound", defaultSound.getId().getNamespace() + ":" + defaultSound.getId().getPath());
+                    sound.addProperty("sound", defaultSound.getId().toString());
                     sound.addProperty("volume", 1f);
                     sound.addProperty("pitch", 1f);
                     example.add("sound", sound);
                 }
 
                 example.addProperty("from", 0);
-                example.addProperty("to", 0); // TODO: Material.AIR
+                example.addProperty("to", Registry.ITEM.getId(Items.AIR).toString());
 
                 {
                     JsonObject drop = new JsonObject();
@@ -152,7 +154,7 @@ public class ConfigManager {
                 {
                     JsonObject sound = new JsonObject();
                     SoundEvent defaultSound = SoundEvents.BLOCK_CROP_BREAK;
-                    sound.addProperty("sound", defaultSound.getId().getNamespace() + ":" + defaultSound.getId().getPath());
+                    sound.addProperty("sound", defaultSound.getId().toString());
                     sound.addProperty("volume", 1f);
                     sound.addProperty("pitch", 1f);
                     example.add("sound", sound);
@@ -179,23 +181,36 @@ public class ConfigManager {
                 if(element.get("use").getAsBoolean()) {
                     BlockChange.ChangeSound sound = null;
                     BlockChange.ChangeDrop drop = null;
-                    /*
                     if(!element.get("sound").isJsonNull()) {
-                        sound = new BlockChange.ChangeSound(Sound.valueOf(element.getAsJsonObject("sound").get("sound").getAsString()),
+                        Identifier soundIdentifier = new Identifier(element.getAsJsonObject("sound").get("sound").getAsString());
+                        sound = new BlockChange.ChangeSound(Registry.SOUND_EVENT.get(soundIdentifier),
                                 element.getAsJsonObject("sound").get("volume").getAsFloat(),
                                 element.getAsJsonObject("sound").get("pitch").getAsFloat());
                     }
                     if(!element.get("drop").isJsonNull()) {
-                        drop = new BlockChange.ChangeDrop(Material.getMaterial(element.getAsJsonObject("drop").get("item").getAsString()),
+                        Item minecraftItem = null;
+                        if(!element.getAsJsonObject("drop").get("item").getAsString().equals("0")) {
+                            Identifier itemIdentifier = new Identifier(element.getAsJsonObject("drop").get("item").getAsString());
+                            minecraftItem = Registry.ITEM.get(itemIdentifier);
+                        }
+                        drop = new BlockChange.ChangeDrop(minecraftItem,
                                 element.getAsJsonObject("drop").get("amount").getAsInt());
                     }
-                    Material from = Material.getMaterial(element.get("from").getAsString());
-                    Material to = Material.getMaterial(element.get("to").getAsString());
+
+                    Item from = null;
+                    Item to = null;
+                    if(!Objects.equals(element.get("from").getAsString(), "0")) {
+                        Identifier itemIdentifier = new Identifier(element.get("from").getAsString());
+                        from = Registry.ITEM.get(itemIdentifier);
+                    }
+                    if(!Objects.equals(element.get("to").getAsString(), "0")) {
+                        Identifier itemIdentifier = new Identifier(element.get("to").getAsString());
+                        to = Registry.ITEM.get(itemIdentifier);
+                    }
 
                     int newAge = element.get("newAge").getAsInt();
                     BlockChange blockChange = new BlockChange(sound, from, to, drop, newAge);
                     this.changes.add(blockChange);
-                     */
                 }
             }
         }
@@ -229,8 +244,19 @@ public class ConfigManager {
         return changes;
     }
 
-    public List<BlockChange> getChangeFor(Material from) {
+    public List<BlockChange> getChangeFor(Item from) {
         return this.changes.stream().filter(item -> item.from() == from || item.from() == null).collect(Collectors.toList());
+    }
+
+    @Override
+    public String toString() {
+        return "ConfigManager{" +
+                "currentConfigVersion=" + currentConfigVersion +
+                ", ignoreUpdates=" + ignoreUpdates +
+                ", preventChange=" + preventChange +
+                ", changeBlock=" + changeBlock +
+                ", changes=" + changes +
+                '}';
     }
 
 }

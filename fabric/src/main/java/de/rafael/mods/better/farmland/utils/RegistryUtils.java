@@ -28,55 +28,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.rafael.mods.better.farmland.classes;
+package de.rafael.mods.better.farmland.utils;
 
 //------------------------------
 //
 // This class was developed by Rafael K.
-// On 07/16/2022 at 2:55 PM
+// On 08/04/2022 at 3:51 PM
 // In the project BetterFarmland
 //
 //------------------------------
 
-import net.minecraft.item.Item;
-import net.minecraft.sound.SoundEvent;
+public class RegistryUtils {
 
-public record BlockChange(ChangeSound sound, Item from, Item to, ChangeDrop drop, int newAge) {
 
-    @Override
-    public String toString() {
-        return "BlockChange{" +
-                "sound=" + sound +
-                ", from=" + from +
-                ", to=" + to +
-                ", drop=" + drop +
-                ", newAge=" + newAge +
-                '}';
-    }
-
-    public record ChangeSound(SoundEvent sound, float soundVolume, float soundPitch) {
-
-        @Override
-        public String toString() {
-            return "ChangeSound{" +
-                    "sound=" + sound +
-                    ", soundVolume=" + soundVolume +
-                    ", soundPitch=" + soundPitch +
-                    '}';
-        }
-
-    }
-
-    public record ChangeDrop(Item item, int amount) {
-
-        @Override
-        public String toString() {
-            return "ChangeDrop{" +
-                    "item=" + item +
-                    ", amount=" + amount +
-                    '}';
-        }
-
-    }
 
 }

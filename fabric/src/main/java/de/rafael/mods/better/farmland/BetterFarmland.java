@@ -30,12 +30,20 @@
 
 package de.rafael.mods.better.farmland;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.rafael.mods.better.farmland.config.ConfigManager;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 public class BetterFarmland implements ModInitializer {
+
+	public static String currentVersion = "${version}";
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("better_farmland");
 	public static BetterFarmland INSTANCE;
@@ -46,7 +54,16 @@ public class BetterFarmland implements ModInitializer {
 	public void onInitialize() {
 		INSTANCE = this;
 
-		LOGGER.info("Loading BetterFarmland version " + 0); // TODO: Version
+		// Loading currently version information
+		try(InputStream modFile = this.getClass().getResourceAsStream("/fabric.mod.json")) {
+			assert modFile != null;
+			JsonObject jsonObject = JsonParser.parseReader(new InputStreamReader(modFile)).getAsJsonObject();
+			currentVersion = jsonObject.get("version").getAsString();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		LOGGER.info("Loading BetterFarmland version " + currentVersion);
 
 		this.configManager = new ConfigManager();
 
@@ -55,7 +72,7 @@ public class BetterFarmland implements ModInitializer {
 			amount++;
 		}
 
-		LOGGER.info("The config loaded in " + amount + " cycles§8.");
+		LOGGER.info("The config loaded in " + amount + " cycles.");
 	}
 
 	public ConfigManager getConfigManager() {

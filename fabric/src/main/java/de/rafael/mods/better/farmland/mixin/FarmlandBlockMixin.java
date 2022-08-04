@@ -39,29 +39,96 @@ package de.rafael.mods.better.farmland.mixin;
 //------------------------------
 
 import de.rafael.mods.better.farmland.BetterFarmland;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FarmlandBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.sound.SoundEvent;
+import de.rafael.mods.better.farmland.classes.BlockChange;
+import de.rafael.mods.better.farmland.config.ConfigManager;
+import net.minecraft.block.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import java.util.List;
 
 @Mixin(FarmlandBlock.class)
 public abstract class FarmlandBlockMixin extends Block {
+
+    @Shadow
+    public static void setToDirt(BlockState state, World world, BlockPos pos) {}
 
     public FarmlandBlockMixin(Settings settings) {
         super(settings);
     }
 
-    @Inject(method = "onLandedUpon", at = @At("HEAD"), cancellable = true)
-    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance, CallbackInfo ci) {
-        super.onLandedUpon(world, state, pos, entity, fallDistance);
-        ci.cancel();
+    @Redirect(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
+    public void onLandedUpon(BlockState state, World world, BlockPos pos) {
+        if(!world.isClient()) {
+            ConfigManager configManager = BetterFarmland.INSTANCE.getConfigManager();
+            if(!configManager.isPreventChange()) {
+                setToDirt(state, world, pos);
+            }
+            if(configManager.isChangeBlock()) {
+                BlockPos cropPos = pos.add(0, 1, 0);
+                BlockState cropBlockState = world.getBlockState(cropPos);
+
+                List<BlockChange> blockChangeList = configManager.getChangeFor(state.getBlock().asItem());
+                for (BlockChange blockChange : blockChangeList) {
+
+                    // Sound
+                    if(blockChange.sound() != null) {
+                        BlockChange.ChangeSound sound = blockChange.sound();
+                        world.playSound(null, pos, sound.sound(), SoundCategory.BLOCKS, sound.soundVolume(), sound.soundPitch());
+                    }
+
+                    // Drop
+                    if(blockChange.drop() != null) {
+                        BlockChange.ChangeDrop drop = blockChange.drop();
+                        Item item = drop.item();
+                        if(item == null && world instanceof ServerWorld) {
+                            List<ItemStack> itemStacks = Block.getDroppedStacks(cropBlockState, (ServerWorld) world, cropPos, null);
+                            for (ItemStack itemStack : itemStacks) {
+                                Block.dropStack(world, cropPos, itemStack);
+                            }
+                        } else {
+                            Block.dropStack(world, cropPos, new ItemStack(item, drop.amount()));
+                        }
+                    }
+
+                    if(cropBlockState.getBlock() instanceof CropBlock cropBlock) {
+                        int oldAge = cropBlockState.get(cropBlock.getAgeProperty());
+
+                        if((blockChange.to() != blockChange.from()) && blockChange.to() != null) {
+                            world.setBlockState(cropPos, Block.getBlockFromItem(blockChange.to()).getDefaultState(), Block.NOTIFY_LISTENERS);
+                            BetterFarmland.LOGGER.info("Block setState to " + blockChange.to().getName().toString());
+                        }
+
+                        int age;
+                        if(blockChange.newAge() == -1) {
+                            age = oldAge;
+                        } else {
+                            age = blockChange.newAge();
+                        }
+
+                        if(Block.getBlockFromItem(blockChange.to()) instanceof CropBlock) {
+                            world.setBlockState(cropPos, cropBlock.withAge(age), Block.NOTIFY_LISTENERS);
+                            BetterFarmland.LOGGER.info("Change age to " + age);
+                        }
+                    } else {
+                        if((blockChange.to() != blockChange.from()) && blockChange.to() != null) {
+                            world.setBlockState(cropPos, Block.getBlockFromItem(blockChange.to()).getDefaultState(), Block.NOTIFY_LISTENERS);
+                            BetterFarmland.LOGGER.info("Block setState to " + blockChange.to().getName().toString());
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
 }
