@@ -40,15 +40,13 @@ public class BetterFarmland implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("better_farmland");
 	public static BetterFarmland INSTANCE;
 
-	private final String prefix = "§8➜ §6B§eetterFarmland §8● §7";
-
 	private ConfigManager configManager;
 
 	@Override
 	public void onInitialize() {
 		INSTANCE = this;
 
-		LOGGER.info(prefix + "§7Loading §eBetterFarmland §7version §6" + 0); // TODO: Version
+		LOGGER.info("Loading BetterFarmland version " + 0); // TODO: Version
 
 		this.configManager = new ConfigManager();
 
@@ -57,11 +55,7 @@ public class BetterFarmland implements ModInitializer {
 			amount++;
 		}
 
-		LOGGER.info(prefix + "§7The config §aloaded §7in §e" + amount + " §7cycles§8.");
-	}
-
-	public String getPrefix() {
-		return prefix;
+		LOGGER.info("The config loaded in " + amount + " cycles§8.");
 	}
 
 	public ConfigManager getConfigManager() {
