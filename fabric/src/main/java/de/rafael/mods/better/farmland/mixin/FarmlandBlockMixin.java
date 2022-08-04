@@ -116,7 +116,7 @@ public abstract class FarmlandBlockMixin extends Block {
                             age = blockChange.newAge();
                         }
 
-                        if(Block.getBlockFromItem(blockChange.to()) instanceof CropBlock) {
+                        if(cropBlockState.getBlock() instanceof CropBlock) {
                             world.setBlockState(cropPos, cropBlock.withAge(age), Block.NOTIFY_LISTENERS);
                         }
                     } else {
