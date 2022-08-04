@@ -62,8 +62,6 @@ public class ConfigManager {
 
     private int currentConfigVersion = 1;
 
-    private boolean ignoreUpdates = false;
-
     // Event
     private boolean preventChange = true;
 
@@ -96,14 +94,7 @@ public class ConfigManager {
         }
 
         // Mod
-        if(!jsonConfiguration.getJson().getAsJsonObject("mod").has("ignoreUpdates")) {
-            jsonConfiguration.getJson().getAsJsonObject("mod").addProperty("ignoreUpdates", this.ignoreUpdates);
-            jsonConfiguration.saveConfig();
-
-            return false;
-        } else {
-            this.ignoreUpdates = jsonConfiguration.getJson().getAsJsonObject("mod").get("ignoreUpdates").getAsBoolean();
-        }
+        // Nothing
 
         // Event
         if(!jsonConfiguration.getJson().getAsJsonObject("event").has("prevent")) {
@@ -224,10 +215,6 @@ public class ConfigManager {
     private void updateConfig(int current) {
     }
 
-    public boolean isIgnoreUpdates() {
-        return ignoreUpdates;
-    }
-
     public boolean isChangeBlock() {
         return changeBlock;
     }
@@ -246,17 +233,6 @@ public class ConfigManager {
 
     public List<BlockChange> getChangeFor(Item from) {
         return this.changes.stream().filter(item -> item.from() == from || item.from() == null).collect(Collectors.toList());
-    }
-
-    @Override
-    public String toString() {
-        return "ConfigManager{" +
-                "currentConfigVersion=" + currentConfigVersion +
-                ", ignoreUpdates=" + ignoreUpdates +
-                ", preventChange=" + preventChange +
-                ", changeBlock=" + changeBlock +
-                ", changes=" + changes +
-                '}';
     }
 
 }

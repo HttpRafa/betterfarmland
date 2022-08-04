@@ -9,7 +9,7 @@
     "HttpRafa"
   ],
   "contact": {
-    "homepage": "https://www.spigotmc.org/resources/better-farmland.103677//",
+    "homepage": "https://modrinth.com/mod/betterfarmland",
     "sources": "https://github.com/HttpRafa/BetterFarmland"
   },
 
@@ -31,8 +31,5 @@
     "fabric": "*",
     "minecraft": "~1.19",
     "java": ">=17"
-  },
-  "suggests": {
-    "another-mod": "*"
   }
 }

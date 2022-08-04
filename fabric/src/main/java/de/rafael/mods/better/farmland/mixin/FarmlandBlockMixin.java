@@ -41,14 +41,16 @@ package de.rafael.mods.better.farmland.mixin;
 import de.rafael.mods.better.farmland.BetterFarmland;
 import de.rafael.mods.better.farmland.classes.BlockChange;
 import de.rafael.mods.better.farmland.config.ConfigManager;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.CropBlock;
+import net.minecraft.block.FarmlandBlock;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.core.jmx.Server;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -90,8 +92,8 @@ public abstract class FarmlandBlockMixin extends Block {
                     if(blockChange.drop() != null) {
                         BlockChange.ChangeDrop drop = blockChange.drop();
                         Item item = drop.item();
-                        if(item == null && world instanceof ServerWorld) {
-                            List<ItemStack> itemStacks = Block.getDroppedStacks(cropBlockState, (ServerWorld) world, cropPos, null);
+                        if(item == null && world instanceof ServerWorld serverWorld) {
+                            List<ItemStack> itemStacks = Block.getDroppedStacks(cropBlockState, serverWorld, cropPos, null);
                             for (ItemStack itemStack : itemStacks) {
                                 Block.dropStack(world, cropPos, itemStack);
                             }
@@ -105,7 +107,6 @@ public abstract class FarmlandBlockMixin extends Block {
 
                         if((blockChange.to() != blockChange.from()) && blockChange.to() != null) {
                             world.setBlockState(cropPos, Block.getBlockFromItem(blockChange.to()).getDefaultState(), Block.NOTIFY_LISTENERS);
-                            BetterFarmland.LOGGER.info("Block setState to " + blockChange.to().getName().toString());
                         }
 
                         int age;
@@ -117,12 +118,10 @@ public abstract class FarmlandBlockMixin extends Block {
 
                         if(Block.getBlockFromItem(blockChange.to()) instanceof CropBlock) {
                             world.setBlockState(cropPos, cropBlock.withAge(age), Block.NOTIFY_LISTENERS);
-                            BetterFarmland.LOGGER.info("Change age to " + age);
                         }
                     } else {
                         if((blockChange.to() != blockChange.from()) && blockChange.to() != null) {
                             world.setBlockState(cropPos, Block.getBlockFromItem(blockChange.to()).getDefaultState(), Block.NOTIFY_LISTENERS);
-                            BetterFarmland.LOGGER.info("Block setState to " + blockChange.to().getName().toString());
                         }
                     }
 
