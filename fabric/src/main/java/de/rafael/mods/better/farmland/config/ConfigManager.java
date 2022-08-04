@@ -60,7 +60,6 @@ public class ConfigManager {
 
     private int currentConfigVersion = 1;
 
-    private boolean bStats = true;
     private boolean ignoreUpdates = false;
 
     // Event
@@ -95,14 +94,6 @@ public class ConfigManager {
         }
 
         // Plugin
-        if(!jsonConfiguration.getJson().getAsJsonObject("plugin").has("bStats")) {
-            jsonConfiguration.getJson().getAsJsonObject("plugin").addProperty("bStats", this.bStats);
-            jsonConfiguration.saveConfig();
-
-            return false;
-        } else {
-            this.bStats = jsonConfiguration.getJson().getAsJsonObject("plugin").get("bStats").getAsBoolean();
-        }
         if(!jsonConfiguration.getJson().getAsJsonObject("plugin").has("ignoreUpdates")) {
             jsonConfiguration.getJson().getAsJsonObject("plugin").addProperty("ignoreUpdates", this.ignoreUpdates);
             jsonConfiguration.saveConfig();
@@ -216,10 +207,6 @@ public class ConfigManager {
     }
 
     private void updateConfig(int current) {
-    }
-
-    public boolean isbStats() {
-        return bStats;
     }
 
     public boolean isIgnoreUpdates() {
