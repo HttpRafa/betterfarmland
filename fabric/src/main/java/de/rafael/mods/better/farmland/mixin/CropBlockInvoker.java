@@ -28,61 +28,25 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.rafael.mods.better.farmland;
+package de.rafael.mods.better.farmland.mixin;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import de.rafael.mods.better.farmland.callback.UseBlockCallbackListener;
-import de.rafael.mods.better.farmland.config.ConfigManager;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//------------------------------
+//
+// This class was developed by Rafael K.
+// On 08/10/2022 at 8:57 PM
+// In the project BetterFarmland
+//
+//------------------------------
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import net.minecraft.block.CropBlock;
+import net.minecraft.item.ItemConvertible;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
-public class BetterFarmland implements ModInitializer {
+@Mixin(CropBlock.class)
+public interface CropBlockInvoker {
 
-	public static String currentVersion = "${version}";
-
-	public static final Logger LOGGER = LoggerFactory.getLogger("better_farmland");
-	public static BetterFarmland INSTANCE;
-
-	private ConfigManager configManager;
-
-	@Override
-	public void onInitialize() {
-		INSTANCE = this;
-
-		// Loading currently version information
-		try(InputStream modFile = this.getClass().getResourceAsStream("/fabric.mod.json")) {
-			assert modFile != null;
-			JsonObject jsonObject = JsonParser.parseReader(new InputStreamReader(modFile)).getAsJsonObject();
-			currentVersion = jsonObject.get("version").getAsString();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-		LOGGER.info("Loading BetterFarmland version " + currentVersion);
-		this.configManager = new ConfigManager();
-
-		int amount = 1;
-		while (!this.configManager.load()) {
-			amount++;
-		}
-		LOGGER.info("The config loaded in " + amount + " cycles.");
-
-		// Callbacks
-		if(this.configManager.isUseRightClickHarvest()) {
-			UseBlockCallback.EVENT.register(new UseBlockCallbackListener());
-		}
-
-	}
-
-	public ConfigManager getConfigManager() {
-		return configManager;
-	}
+    @Invoker("getSeedsItem")
+    ItemConvertible invokeGetSeedsItem();
 
 }

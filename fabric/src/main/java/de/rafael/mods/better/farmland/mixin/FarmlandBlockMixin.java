@@ -72,7 +72,7 @@ public abstract class FarmlandBlockMixin extends Block {
     public void onLandedUpon(BlockState state, World world, BlockPos pos) {
         if(!world.isClient()) {
             ConfigManager configManager = BetterFarmland.INSTANCE.getConfigManager();
-            if(!configManager.isPreventChange()) {
+            if(!configManager.isPreventBreak()) {
                 setToDirt(state, world, pos);
             }
             if(configManager.isChangeBlock()) {
