@@ -41,6 +41,7 @@ package de.rafael.plugins.better.farmland.listener;
 import de.rafael.plugins.better.farmland.BetterFarmland;
 import de.rafael.plugins.better.farmland.classes.BlockChange;
 import org.bukkit.Material;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
@@ -52,9 +53,12 @@ import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
-public class InteractListener implements Listener {
+public class PlayerInteractListener implements Listener {
 
     @EventHandler
     public void on(PlayerInteractEvent event) {
@@ -69,6 +73,32 @@ public class InteractListener implements Listener {
             if(BetterFarmland.getInstance().getConfigManager().isPreventChange()) {
                 event.setCancelled(true);
             }
+        } else if(BetterFarmland.getInstance().getConfigManager().isUseRightClickHarvest() && event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getBlockData() instanceof Ageable ageable && ageable.getAge() == ageable.getMaximumAge()) {
+            List<ItemStack> drops = new ArrayList<>(Objects.requireNonNull(event.getClickedBlock()).getDrops());
+            ageable.setAge(0);
+            Objects.requireNonNull(event.getClickedBlock()).setBlockData(ageable, true);
+
+            List<ItemStack> age0Drops = new ArrayList<>(Objects.requireNonNull(event.getClickedBlock()).getDrops());
+            Material[] seedItem = new Material[] {event.getClickedBlock().getType()};
+            if(age0Drops.size() > 0) {
+                seedItem[0] = age0Drops.get(0).getType();
+            }
+            Optional<ItemStack> seedStack = drops.stream().filter(item -> item.getType() == seedItem[0]).findAny();
+            if(seedStack.isPresent()) {
+                if(seedStack.get().getAmount() > 1) {
+                    seedStack.get().setAmount(seedStack.get().getAmount() - 1);
+                } else {
+                    drops.remove(seedStack.get());
+                }
+            }
+
+            for (ItemStack drop : drops) {
+                event.getClickedBlock().getWorld().dropItemNaturally(event.getClickedBlock().getLocation(), drop);
+            }
+            for (BlockChange.ChangeSound harvestSound : BetterFarmland.getInstance().getConfigManager().getHarvestSounds()) {
+                event.getClickedBlock().getWorld().playSound(event.getClickedBlock().getLocation(), harvestSound.sound(), SoundCategory.BLOCKS, harvestSound.soundVolume(), harvestSound.soundPitch());
+            }
+
         }
 
     }

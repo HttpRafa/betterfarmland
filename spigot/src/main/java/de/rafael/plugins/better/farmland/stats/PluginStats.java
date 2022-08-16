@@ -38,16 +38,15 @@ package de.rafael.plugins.better.farmland.stats;
 //
 //------------------------------
 
+import de.rafael.plugins.better.farmland.config.ConfigManager;
 import de.rafael.plugins.better.farmland.config.lib.JsonConfiguration;
-
-import java.io.File;
 
 public class PluginStats {
 
     private int eventTriggered;
 
     public void load() {
-        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(new File("config//better_farmland/"), "stats.json");
+        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(ConfigManager.dataFolder, "stats.json");
 
         if(!jsonConfiguration.getJson().has("eventTriggered")) {
             jsonConfiguration.getJson().addProperty("eventTriggered", 0);
@@ -60,7 +59,7 @@ public class PluginStats {
     }
 
     public void save() {
-        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(new File("config//better_farmland/"), "stats.json");
+        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(ConfigManager.dataFolder, "stats.json");
 
         jsonConfiguration.getJson().addProperty("eventTriggered", this.eventTriggered);
 

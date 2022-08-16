@@ -50,8 +50,10 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,6 +62,8 @@ import java.util.stream.Collectors;
 public class ConfigManager {
 
     public static final int latestConfigVersion = 2;
+    public static final File dataFolder = new File("config//betterfarmland/");
+    public static final File[] lookForDataFolders = new File[] { new File("config//better_farmland/") };
 
     private int currentConfigVersion = 1;
 
@@ -76,7 +80,17 @@ public class ConfigManager {
 
     public boolean load() {
 
-        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(new File("config//better_farmland/"), "config.json");
+        for (File lookForDataFolder : lookForDataFolders) {
+            if(lookForDataFolder.exists()) {
+                try {
+                    FileUtils.moveDirectory(lookForDataFolder, dataFolder);
+                } catch (IOException exception) {
+                    throw new RuntimeException(exception);
+                }
+            }
+        }
+
+        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(dataFolder, "config.json");
 
         // Config Version
         if(!jsonConfiguration.getJson().has("configVersion")) {
@@ -262,7 +276,7 @@ public class ConfigManager {
     }
 
     private void updateConfig(int current) {
-        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(new File("config//better_farmland/"), "config.json");
+        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(dataFolder, "config.json");
         if(current == 1) {
             jsonConfiguration.getJson().addProperty("configVersion", current + 1);
 

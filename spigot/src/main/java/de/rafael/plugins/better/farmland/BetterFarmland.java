@@ -39,9 +39,9 @@ package de.rafael.plugins.better.farmland;
 //------------------------------
 
 import de.rafael.plugins.better.farmland.config.ConfigManager;
+import de.rafael.plugins.better.farmland.listener.PlayerInteractListener;
 import de.rafael.plugins.better.farmland.stats.PluginStats;
 import de.rafael.plugins.better.farmland.update.PluginVersion;
-import de.rafael.plugins.better.farmland.listener.InteractListener;
 import de.rafael.plugins.better.farmland.update.UpdateChecker;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SingleLineChart;
@@ -103,7 +103,7 @@ public final class BetterFarmland extends JavaPlugin {
         }
 
         // Events
-        Bukkit.getPluginManager().registerEvents(new InteractListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerInteractListener(), this);
 
     }
 

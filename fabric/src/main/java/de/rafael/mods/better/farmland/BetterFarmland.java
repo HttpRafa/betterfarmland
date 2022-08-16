@@ -47,7 +47,7 @@ public class BetterFarmland implements ModInitializer {
 
 	public static String currentVersion = "${version}";
 
-	public static final Logger LOGGER = LoggerFactory.getLogger("better_farmland");
+	public static final Logger LOGGER = LoggerFactory.getLogger("betterfarmland");
 	public static BetterFarmland INSTANCE;
 
 	private ConfigManager configManager;

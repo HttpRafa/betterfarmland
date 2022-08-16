@@ -41,24 +41,35 @@ package de.rafael.plugins.better.farmland.config;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import de.rafael.plugins.better.farmland.config.lib.JsonConfiguration;
+import de.rafael.plugins.better.farmland.BetterFarmland;
 import de.rafael.plugins.better.farmland.classes.BlockChange;
+import de.rafael.plugins.better.farmland.config.lib.JsonConfiguration;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ConfigManager {
 
-    public static final int latestConfigVersion = 1;
+    public static final int latestConfigVersion = 2;
+    public static final File dataFolder = new File("config//betterfarmland/");
+    public static final File[] lookForDataFolders = new File[] { new File("config//better_farmland/"), new File("plugins//BetterFarmland/") };
 
     private int currentConfigVersion = 1;
 
     private boolean bStats = true;
     private boolean ignoreUpdates = false;
+
+    // RightClickHarvest
+    private boolean useRightClickHarvest = false;
+    private final List<BlockChange.ChangeSound> harvestSounds = new ArrayList<>();
 
     // Event
     private boolean preventChange = true;
@@ -69,7 +80,17 @@ public class ConfigManager {
 
     public boolean load() {
 
-        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(new File("config//better_farmland/"), "config.json");
+        for (File lookForDataFolder : lookForDataFolders) {
+            if(lookForDataFolder.exists()) {
+                try {
+                    Files.move(lookForDataFolder.toPath(), dataFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException exception) {
+                    throw new RuntimeException(exception);
+                }
+            }
+        }
+
+        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(dataFolder, "config.json");
 
         // Config Version
         if(!jsonConfiguration.getJson().has("configVersion")) {
@@ -87,8 +108,12 @@ public class ConfigManager {
             jsonConfiguration.getJson().add("plugin", new JsonObject());
         }
 
-        if(!jsonConfiguration.getJson().has("event")) {
-            jsonConfiguration.getJson().add("event", new JsonObject());
+        if(!jsonConfiguration.getJson().has("rightClickHarvest")) {
+            jsonConfiguration.getJson().add("rightClickHarvest", new JsonObject());
+        }
+
+        if(!jsonConfiguration.getJson().has("landedUpon")) {
+            jsonConfiguration.getJson().add("landedUpon", new JsonObject());
         }
 
         // Plugin
@@ -109,19 +134,57 @@ public class ConfigManager {
             this.ignoreUpdates = jsonConfiguration.getJson().getAsJsonObject("plugin").get("ignoreUpdates").getAsBoolean();
         }
 
+        // rightClickHarvest
+        if(!jsonConfiguration.getJson().getAsJsonObject("rightClickHarvest").has("use")) {
+            jsonConfiguration.getJson().getAsJsonObject("rightClickHarvest").addProperty("use", this.useRightClickHarvest);
+            jsonConfiguration.saveConfig();
+            return false;
+        } else {
+            this.useRightClickHarvest = jsonConfiguration.getJson().getAsJsonObject("rightClickHarvest").get("use").getAsBoolean();
+        }
+
+        if(!jsonConfiguration.getJson().getAsJsonObject("rightClickHarvest").has("sounds")) {
+            JsonArray soundArray = new JsonArray();
+            {
+                JsonObject soundObject = new JsonObject();
+                soundObject.addProperty("sound", Sound.BLOCK_CROP_BREAK.name());
+                soundObject.addProperty("volume", 1f);
+                soundObject.addProperty("pitch", 1f);
+                soundArray.add(soundObject);
+            }
+            {
+                JsonObject soundObject = new JsonObject();
+                soundObject.addProperty("sound", Sound.BLOCK_PUMPKIN_CARVE.name());
+                soundObject.addProperty("volume", 0.75f);
+                soundObject.addProperty("pitch", 1f);
+                soundArray.add(soundObject);
+            }
+            jsonConfiguration.getJson().getAsJsonObject("rightClickHarvest").add("sounds", soundArray);
+            jsonConfiguration.saveConfig();
+            return false;
+        } else {
+            JsonArray soundArray = jsonConfiguration.getJson().getAsJsonObject("rightClickHarvest").getAsJsonArray("sounds");
+            for (JsonElement jsonElement : soundArray) {
+                JsonObject soundObject = jsonElement.getAsJsonObject();
+                Sound soundEvent = Sound.valueOf(soundObject.get("sound").getAsString());
+                BlockChange.ChangeSound sound = new BlockChange.ChangeSound(soundEvent, soundObject.get("volume").getAsFloat(), soundObject.get("pitch").getAsFloat());
+                this.harvestSounds.add(sound);
+            }
+        }
+
         // Event
-        if(!jsonConfiguration.getJson().getAsJsonObject("event").has("prevent")) {
-            jsonConfiguration.getJson().getAsJsonObject("event").addProperty("prevent", this.preventChange);
+        if(!jsonConfiguration.getJson().getAsJsonObject("landedUpon").has("preventBreak")) {
+            jsonConfiguration.getJson().getAsJsonObject("landedUpon").addProperty("preventBreak", this.preventChange);
             jsonConfiguration.saveConfig();
 
             return false;
         } else {
-            this.preventChange = jsonConfiguration.getJson().getAsJsonObject("event").get("prevent").getAsBoolean();
+            this.preventChange = jsonConfiguration.getJson().getAsJsonObject("landedUpon").get("preventBreak").getAsBoolean();
         }
 
-        if(!jsonConfiguration.getJson().getAsJsonObject("event").has("crops")) {
-            jsonConfiguration.getJson().getAsJsonObject("event").add("crops", new JsonObject());
-            jsonConfiguration.getJson().getAsJsonObject("event").getAsJsonObject("crops").addProperty("change", this.changeBlock);
+        if(!jsonConfiguration.getJson().getAsJsonObject("landedUpon").has("crops")) {
+            jsonConfiguration.getJson().getAsJsonObject("landedUpon").add("crops", new JsonObject());
+            jsonConfiguration.getJson().getAsJsonObject("landedUpon").getAsJsonObject("crops").addProperty("change", this.changeBlock);
 
             JsonArray defaultChangeType = new JsonArray();
             {
@@ -169,15 +232,15 @@ public class ConfigManager {
                 defaultChangeType.add(example);
             }
 
-            jsonConfiguration.getJson().getAsJsonObject("event").getAsJsonObject("crops").add("changes", defaultChangeType);
+            jsonConfiguration.getJson().getAsJsonObject("landedUpon").getAsJsonObject("crops").add("changes", defaultChangeType);
 
             jsonConfiguration.saveConfig();
 
             return false;
         } else {
-            this.changeBlock = jsonConfiguration.getJson().getAsJsonObject("event").getAsJsonObject("crops").get("change").getAsBoolean();
+            this.changeBlock = jsonConfiguration.getJson().getAsJsonObject("landedUpon").getAsJsonObject("crops").get("change").getAsBoolean();
 
-            JsonArray changesArray = jsonConfiguration.getJson().getAsJsonObject("event").getAsJsonObject("crops").get("changes").getAsJsonArray();
+            JsonArray changesArray = jsonConfiguration.getJson().getAsJsonObject("landedUpon").getAsJsonObject("crops").get("changes").getAsJsonArray();
             for (JsonElement jsonElement : changesArray) {
                 JsonObject element = jsonElement.getAsJsonObject();
                 if(element.get("use").getAsBoolean()) {
@@ -208,6 +271,27 @@ public class ConfigManager {
     }
 
     private void updateConfig(int current) {
+        JsonConfiguration jsonConfiguration = JsonConfiguration.loadConfig(dataFolder, "config.json");
+        if(current == 1) {
+            jsonConfiguration.getJson().addProperty("configVersion", current + 1);
+
+            jsonConfiguration.getJson().add("landedUpon", jsonConfiguration.getJson().get("event"));
+            jsonConfiguration.getJson().remove("event");
+
+            jsonConfiguration.getJson().getAsJsonObject("landedUpon").add("preventBreak", jsonConfiguration.getJson().getAsJsonObject("landedUpon").get("prevent"));
+            jsonConfiguration.getJson().getAsJsonObject("landedUpon").remove("prevent");
+
+            Bukkit.getConsoleSender().sendMessage(BetterFarmland.getInstance().getPrefix() + "§7Config update §acompleted §7from the version §e" + current + " §7to §6" + (current + 1));
+        }
+        jsonConfiguration.saveConfig();
+    }
+
+    public boolean isUseRightClickHarvest() {
+        return useRightClickHarvest;
+    }
+
+    public List<BlockChange.ChangeSound> getHarvestSounds() {
+        return harvestSounds;
     }
 
     public boolean isbStats() {
