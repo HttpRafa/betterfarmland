@@ -2,8 +2,7 @@ Better Farmland is meant to improve your experience with your farmland.
 But there are also other functions for people who want something fancy.
 If you have any suggestions for the plugin/mod, please use the [Discussion](https://www.spigotmc.org/threads/better-farmland.566196/) function.
 
-Plugin for [spigot](https://www.spigotmc.org/resources/better-farmland.103677/)
-Mod for [fabric](https://modrinth.com/mod/betterfarmland/)
+Plugin for [spigot](https://www.spigotmc.org/resources/better-farmland.103677/) or as mod for [fabric](https://modrinth.com/mod/betterfarmland/)
 
 # Images
 
