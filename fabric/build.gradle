@@ -1,4 +1,5 @@
 plugins {
+    id 'maven-publish'
     id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'java'
@@ -43,5 +44,28 @@ java {
 jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}"}
+    }
+}
+
+publishing {
+    publications {
+        mavenFabric(MavenPublication) {
+            artifactId = project.archives_base_name + "-fabric"
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        repositories {
+            maven {
+                allowInsecureProtocol = true
+                url = version.endsWith('SNAPSHOT') ? "$snapshotsRepoUrl" : "$releasesRepoUrl"
+                credentials {
+                    username "$mavenUser"
+                    password "$mavenPassword"
+                }
+            }
+        }
     }
 }
