@@ -4,6 +4,8 @@ If you have any suggestions for the plugin/mod, please use the [Discussion](http
 
 Plugin for [spigot](https://www.spigotmc.org/resources/better-farmland.103677/) or as mod for [fabric and forge](https://modrinth.com/mod/betterfarmland/)
 
+For developers: If you want to extend my mod or make it compatible you can use my [repo](https://repo.httprafa.link/).
+
 # Images
 
 ## Rightclick Harvest
