@@ -46,7 +46,7 @@ public class BlockUseEventHandler {
 
     @SubscribeEvent
     public void onUse(PlayerInteractEvent.RightClickBlock rightClickBlock) {
-        UseBlockLogic.interact(rightClickBlock.getLevel(), rightClickBlock.getHand(), rightClickBlock.getHitVec());
+        rightClickBlock.setCancellationResult(UseBlockLogic.interact(rightClickBlock.getLevel(), rightClickBlock.getHand(), rightClickBlock.getHitVec()));
     }
 
 }

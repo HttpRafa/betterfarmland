@@ -22,7 +22,8 @@
     ]
   },
   "mixins": [
-    "betterfarmland.mixins.json"
+    "betterfarmland.mixins.json",
+    "betterfarmland-common.mixins.json"
   ],
 
   "depends": {
