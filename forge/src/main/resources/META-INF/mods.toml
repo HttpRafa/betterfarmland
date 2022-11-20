@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+issueTrackerURL = "https://github.com/HttpRafa/BetterFarmland/issues"
+license = "MIT"
+
+[[mods]]
+modId = "betterfarmland"
+version = "${version}"
+displayName = "BetterFarmland"
+authors = "HttpRafa"
+description = '''
+Meant to improve your experience with your farmland
+'''
+#logoFile = "icon.png"
+
+[[dependencies.betterfarmland]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.betterfarmland]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19.2,)"
+ordering = "NONE"
+side = "BOTH"

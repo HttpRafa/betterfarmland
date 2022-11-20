@@ -1,11 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8.5",
-  "package": "de.rafael.mods.better.farmland.fabric.mixin",
+  "package": "de.rafael.mods.better.farmland.forge.mixin",
   "compatibilityLevel": "JAVA_17",
+  "client": [
+  ],
   "mixins": [
   ],
-  "client": [],
   "injectors": {
     "defaultRequire": 1
   }

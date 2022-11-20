@@ -1,11 +1,14 @@
 {
   "required": true,
   "minVersion": "0.8.5",
-  "package": "de.rafael.mods.better.farmland.fabric.mixin",
+  "package": "de.rafael.mods.better.farmland.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
+  "client": [
   ],
-  "client": [],
+  "mixins": [
+    "CropBlockInvoker",
+    "FarmBlockMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

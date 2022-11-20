@@ -7,19 +7,18 @@
  * in the user manual at https://docs.gradle.org/7.4.2/userguide/multi_project_builds.html
  */
 
-
 pluginManagement {
     repositories {
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
+        maven { url "https://maven.fabricmc.net/" }
+        maven { url "https://maven.architectury.dev/" }
+        maven { url "https://maven.minecraftforge.net/" }
         mavenCentral()
         gradlePluginPortal()
     }
 }
 
-rootProject.name = 'BetterFarmland'
+rootProject.name = 'betterfarmland'
 
-include 'spigot'
+include 'common'
 include 'fabric'
+include 'forge'
