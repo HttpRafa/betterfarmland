@@ -77,7 +77,6 @@ publishing {
     repositories {
         repositories {
             maven {
-                allowInsecureProtocol = true
                 url = version.endsWith('SNAPSHOT') ? "$snapshotsRepoUrl" : "$releasesRepoUrl"
                 credentials {
                     username "$mavenUser"
