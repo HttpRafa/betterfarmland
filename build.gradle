@@ -28,7 +28,7 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
-    archivesBaseName = rootProject.archives_base_name + "-" + rootProject.minecraft_version + "-" + project.name
+    archivesBaseName = rootProject.archives_base_name + "-" + project.name
     version = rootProject.version
     group = rootProject.maven_group
 
