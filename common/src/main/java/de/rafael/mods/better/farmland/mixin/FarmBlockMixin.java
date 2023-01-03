@@ -35,16 +35,16 @@ package de.rafael.mods.better.farmland.mixin;
 import de.rafael.mods.better.farmland.BetterFarmland;
 import de.rafael.mods.better.farmland.classes.BlockChange;
 import de.rafael.mods.better.farmland.config.ConfigManager;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.FarmBlock;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.CropBlock;
+import net.minecraft.block.FarmlandBlock;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -52,27 +52,29 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.List;
 
-@Mixin(FarmBlock.class)
+@Mixin(FarmlandBlock.class)
 public abstract class FarmBlockMixin extends Block {
 
     @Shadow
-    public static void turnToDirt(BlockState state, Level world, BlockPos pos) {}
+    public static void setToDirt(BlockState state, World world, BlockPos pos) {
 
-    public FarmBlockMixin(Properties settings) {
+    }
+
+    public FarmBlockMixin(Settings settings) {
         super(settings);
     }
 
-    @Redirect(method = "fallOn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FarmBlock;turnToDirt(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)V"))
-    public void fallOn(BlockState blockState, Level level, BlockPos blockPos) {
-        if(!level.isClientSide()) {
+    @Redirect(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
+    public void onLandedUpon(BlockState blockState, World world, BlockPos blockPos) {
+        if(!world.isClient()) {
             ConfigManager configManager = BetterFarmland.getConfigManager();
 
             if(!configManager.isPreventBreak()) {
-                turnToDirt(blockState, level, blockPos);
+                setToDirt(blockState, world, blockPos);
             }
             if(configManager.isChangeBlock()) {
-                BlockPos cropPos = blockPos.offset(0, 1, 0);
-                BlockState cropBlockState = level.getBlockState(cropPos);
+                BlockPos cropPos = blockPos.add(0, 1, 0);
+                BlockState cropBlockState = world.getBlockState(cropPos);
 
                 List<BlockChange> blockChangeList = configManager.getChangeFor(cropBlockState.getBlock());
                 for (BlockChange blockChange : blockChangeList) {
@@ -80,25 +82,25 @@ public abstract class FarmBlockMixin extends Block {
                     // Sound
                     if(blockChange.sound() != null) {
                         BlockChange.ChangeSound sound = blockChange.sound();
-                        level.playSound(null, blockPos, sound.sound(), SoundSource.BLOCKS, sound.soundVolume(), sound.soundPitch());
+                        world.playSound(null, blockPos, sound.sound(), SoundCategory.BLOCKS, sound.soundVolume(), sound.soundPitch());
                     }
 
                     // Drop
                     if(blockChange.drop() != null) {
                         BlockChange.ChangeDrop drop = blockChange.drop();
                         Item item = drop.item();
-                        if(item == null && level instanceof ServerLevel serverLevel) {
-                            List<ItemStack> itemStacks = Block.getDrops(cropBlockState, serverLevel, cropPos, null);
+                        if(item == null && world instanceof ServerWorld serverWorld) {
+                            List<ItemStack> itemStacks = Block.getDroppedStacks(cropBlockState, serverWorld, cropPos, null);
                             for (ItemStack itemStack : itemStacks) {
-                                Block.popResource(level, cropPos, itemStack);
+                                Block.dropStack(world, cropPos, itemStack);
                             }
                         } else {
-                            Block.popResource(level, cropPos, new ItemStack(item, drop.amount()));
+                            Block.dropStack(world, cropPos, new ItemStack(item, drop.amount()));
                         }
                     }
 
                     if(cropBlockState.getBlock() instanceof CropBlock cropBlock) {
-                        int oldAge = cropBlockState.getValue(cropBlock.getAgeProperty());
+                        int oldAge = cropBlockState.get(cropBlock.getAgeProperty());
 
                         int age;
                         if(blockChange.newAge() == -1) {
@@ -108,11 +110,11 @@ public abstract class FarmBlockMixin extends Block {
                         }
 
                         if(cropBlockState.getBlock() instanceof CropBlock) {
-                            level.setBlock(cropPos, cropBlock.getStateForAge(age), Block.UPDATE_ALL);
+                            world.setBlockState(cropPos, cropBlock.withAge(age), Block.NOTIFY_ALL);
                         }
                     }
                     if((blockChange.to() != blockChange.from()) && blockChange.to() != null) {
-                        level.setBlock(cropPos, blockChange.to().defaultBlockState(), Block.UPDATE_ALL);
+                        world.setBlockState(cropPos, blockChange.to().getDefaultState(), Block.NOTIFY_ALL);
                     }
                 }
             }

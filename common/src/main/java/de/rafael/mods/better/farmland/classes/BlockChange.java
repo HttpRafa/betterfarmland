@@ -32,9 +32,9 @@ package de.rafael.mods.better.farmland.classes;
 //
 //------------------------------
 
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.sound.SoundEvent;
 
 public record BlockChange(ChangeSound sound, Block from, Block to, ChangeDrop drop, int newAge) {
 

@@ -32,15 +32,15 @@ package de.rafael.mods.better.farmland.mixin;
 //
 //------------------------------
 
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.block.CropBlock;
+import net.minecraft.item.ItemConvertible;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(CropBlock.class)
 public interface CropBlockInvoker {
 
-    @Invoker("getBaseSeedId")
-    ItemLike invokeGetSeedsItem();
+    @Invoker("getSeedsItem")
+    ItemConvertible invokeGetSeedsItem();
 
 }

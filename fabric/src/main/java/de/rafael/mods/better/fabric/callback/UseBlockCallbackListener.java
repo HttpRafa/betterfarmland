@@ -34,16 +34,16 @@ package de.rafael.mods.better.fabric.callback;
 
 import de.rafael.mods.better.farmland.logic.UseBlockLogic;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.world.World;
 
 public class UseBlockCallbackListener implements UseBlockCallback {
 
     @Override
-    public InteractionResult interact(Player player, Level world, InteractionHand hand, BlockHitResult hitResult) {
+    public ActionResult interact(PlayerEntity player, World world, Hand hand, BlockHitResult hitResult) {
         return UseBlockLogic.interact(world, hand, hitResult);
     }
 

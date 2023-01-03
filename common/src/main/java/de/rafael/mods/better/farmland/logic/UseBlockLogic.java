@@ -35,28 +35,28 @@ package de.rafael.mods.better.farmland.logic;
 import de.rafael.mods.better.farmland.BetterFarmland;
 import de.rafael.mods.better.farmland.classes.BlockChange;
 import de.rafael.mods.better.farmland.mixin.CropBlockInvoker;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CropBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.CropBlock;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UseBlockLogic {
 
-    public static InteractionResult interact(Level world, InteractionHand hand, BlockHitResult hitResult) {
-        if(!world.isClientSide() && hand == InteractionHand.MAIN_HAND && world instanceof ServerLevel serverWorld) {
+    public static ActionResult interact(World world, Hand hand, BlockHitResult hitResult) {
+        if(!world.isClient() && hand == Hand.MAIN_HAND && world instanceof ServerWorld serverWorld) {
             BlockState blockState = world.getBlockState(hitResult.getBlockPos());
-            if (blockState.getBlock() instanceof CropBlock cropBlock && blockState.getValue(cropBlock.getAgeProperty()) == cropBlock.getMaxAge()) {
-                List<ItemStack> itemStacks = Block.getDrops(blockState, serverWorld, hitResult.getBlockPos(), null);
-                Optional<ItemStack> seedStack = itemStacks.stream().filter(itemStack -> itemStack.is(((CropBlockInvoker)cropBlock).invokeGetSeedsItem().asItem())).findFirst();
+            if (blockState.getBlock() instanceof CropBlock cropBlock && blockState.get(cropBlock.getAgeProperty()) == cropBlock.getMaxAge()) {
+                List<ItemStack> itemStacks = Block.getDroppedStacks(blockState, serverWorld, hitResult.getBlockPos(), null);
+                Optional<ItemStack> seedStack = itemStacks.stream().filter(itemStack -> itemStack.isOf(((CropBlockInvoker)cropBlock).invokeGetSeedsItem().asItem())).findFirst();
                 if(seedStack.isPresent()) {
                     int newCount = seedStack.get().getCount() - 1;
                     if(newCount < 1) {
@@ -66,18 +66,18 @@ public class UseBlockLogic {
                     }
                 }
                 for (ItemStack itemStack : itemStacks) {
-                    Block.popResource(world, hitResult.getBlockPos(), itemStack);
+                    Block.dropStack(world, hitResult.getBlockPos(), itemStack);
                 }
 
-                world.setBlock(hitResult.getBlockPos(), cropBlock.getStateForAge(0), Block.UPDATE_ALL);
+                world.setBlockState(hitResult.getBlockPos(), cropBlock.withAge(0), Block.NOTIFY_ALL);
 
                 for (BlockChange.ChangeSound harvestSound : BetterFarmland.getConfigManager().getHarvestSounds()) {
-                    world.playSound(null, hitResult.getBlockPos(), harvestSound.sound(), SoundSource.BLOCKS, harvestSound.soundVolume(), harvestSound.soundPitch());
+                    world.playSound(null, hitResult.getBlockPos(), harvestSound.sound(), SoundCategory.BLOCKS, harvestSound.soundVolume(), harvestSound.soundPitch());
                 }
-                return InteractionResult.SUCCESS;
+                return ActionResult.SUCCESS;
             }
         }
-        return InteractionResult.PASS;
+        return ActionResult.PASS;
     }
 
 }

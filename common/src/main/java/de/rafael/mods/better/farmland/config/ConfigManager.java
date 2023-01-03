@@ -38,13 +38,14 @@ import com.google.gson.JsonObject;
 import de.rafael.mods.better.farmland.BetterFarmland;
 import de.rafael.mods.better.farmland.classes.BlockChange;
 import de.rafael.mods.better.farmland.config.lib.JsonConfiguration;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -127,16 +128,16 @@ public class ConfigManager {
             JsonArray soundArray = new JsonArray();
             {
                 JsonObject soundObject = new JsonObject();
-                SoundEvent sound = SoundEvents.CROP_BREAK;
-                soundObject.addProperty("sound", sound.getLocation().toString());
+                SoundEvent sound = SoundEvents.BLOCK_CROP_BREAK;
+                soundObject.addProperty("sound", sound.getId().toString());
                 soundObject.addProperty("volume", 1f);
                 soundObject.addProperty("pitch", 1f);
                 soundArray.add(soundObject);
             }
             {
                 JsonObject soundObject = new JsonObject();
-                SoundEvent sound = SoundEvents.PUMPKIN_CARVE;
-                soundObject.addProperty("sound", sound.getLocation().toString());
+                SoundEvent sound = SoundEvents.BLOCK_PUMPKIN_CARVE;
+                soundObject.addProperty("sound", sound.getId().toString());
                 soundObject.addProperty("volume", 0.75f);
                 soundObject.addProperty("pitch", 1f);
                 soundArray.add(soundObject);
@@ -148,7 +149,7 @@ public class ConfigManager {
             JsonArray soundArray = jsonConfiguration.getJson().getAsJsonObject("rightClickHarvest").getAsJsonArray("sounds");
             for (JsonElement jsonElement : soundArray) {
                 JsonObject soundObject = jsonElement.getAsJsonObject();
-                SoundEvent soundEvent = Registry.SOUND_EVENT.get(new ResourceLocation(soundObject.get("sound").getAsString()));
+                SoundEvent soundEvent = Registries.SOUND_EVENT.get(new Identifier(soundObject.get("sound").getAsString()));
                 BlockChange.ChangeSound sound = new BlockChange.ChangeSound(soundEvent, soundObject.get("volume").getAsFloat(), soundObject.get("pitch").getAsFloat());
                 this.harvestSounds.add(sound);
             }
@@ -175,15 +176,15 @@ public class ConfigManager {
 
                 {
                     JsonObject sound = new JsonObject();
-                    SoundEvent defaultSound = SoundEvents.CROP_BREAK;
-                    sound.addProperty("sound", defaultSound.getLocation().toString());
+                    SoundEvent defaultSound = SoundEvents.BLOCK_CROP_BREAK;
+                    sound.addProperty("sound", defaultSound.getId().toString());
                     sound.addProperty("volume", 1f);
                     sound.addProperty("pitch", 1f);
                     example.add("sound", sound);
                 }
 
                 example.addProperty("from", 0);
-                example.addProperty("to", Registry.ITEM.getId(Items.AIR));
+                example.addProperty("to", Registries.ITEM.getId(Items.AIR).toString());
 
                 {
                     JsonObject drop = new JsonObject();
@@ -202,8 +203,8 @@ public class ConfigManager {
 
                 {
                     JsonObject sound = new JsonObject();
-                    SoundEvent defaultSound = SoundEvents.CROP_BREAK;
-                    sound.addProperty("sound", defaultSound.getLocation().toString());
+                    SoundEvent defaultSound = SoundEvents.BLOCK_CROP_BREAK;
+                    sound.addProperty("sound", defaultSound.getId().toString());
                     sound.addProperty("volume", 1f);
                     sound.addProperty("pitch", 1f);
                     example.add("sound", sound);
@@ -231,16 +232,16 @@ public class ConfigManager {
                     BlockChange.ChangeSound sound = null;
                     BlockChange.ChangeDrop drop = null;
                     if (!element.get("sound").isJsonNull()) {
-                        ResourceLocation soundIdentifier = new ResourceLocation(element.getAsJsonObject("sound").get("sound").getAsString());
-                        sound = new BlockChange.ChangeSound(Registry.SOUND_EVENT.get(soundIdentifier),
+                        Identifier soundIdentifier = new Identifier(element.getAsJsonObject("sound").get("sound").getAsString());
+                        sound = new BlockChange.ChangeSound(Registries.SOUND_EVENT.get(soundIdentifier),
                                 element.getAsJsonObject("sound").get("volume").getAsFloat(),
                                 element.getAsJsonObject("sound").get("pitch").getAsFloat());
                     }
                     if (!element.get("drop").isJsonNull()) {
                         Item minecraftItem = null;
                         if (!element.getAsJsonObject("drop").get("item").getAsString().equals("0")) {
-                            ResourceLocation itemIdentifier = new ResourceLocation(element.getAsJsonObject("drop").get("item").getAsString());
-                            minecraftItem = Registry.ITEM.get(itemIdentifier);
+                            Identifier itemIdentifier = new Identifier(element.getAsJsonObject("drop").get("item").getAsString());
+                            minecraftItem = Registries.ITEM.get(itemIdentifier);
                         }
                         drop = new BlockChange.ChangeDrop(minecraftItem,
                                 element.getAsJsonObject("drop").get("amount").getAsInt());
@@ -249,12 +250,12 @@ public class ConfigManager {
                     Block from = null;
                     Block to = null;
                     if (!Objects.equals(element.get("from").getAsString(), "0")) {
-                        ResourceLocation itemIdentifier = new ResourceLocation(element.get("from").getAsString());
-                        from = Registry.BLOCK.get(itemIdentifier);
+                        Identifier itemIdentifier = new Identifier(element.get("from").getAsString());
+                        from = Registries.BLOCK.get(itemIdentifier);
                     }
                     if (!Objects.equals(element.get("to").getAsString(), "0")) {
-                        ResourceLocation itemIdentifier = new ResourceLocation(element.get("to").getAsString());
-                        to = Registry.BLOCK.get(itemIdentifier);
+                        Identifier itemIdentifier = new Identifier(element.get("to").getAsString());
+                        to = Registries.BLOCK.get(itemIdentifier);
                     }
 
                     int newAge = element.get("newAge").getAsInt();
