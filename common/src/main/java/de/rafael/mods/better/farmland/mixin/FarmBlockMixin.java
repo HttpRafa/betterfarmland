@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022.
+ * Copyright (c) 2022-2023.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CropBlock;
 import net.minecraft.block.FarmlandBlock;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
@@ -56,7 +57,7 @@ import java.util.List;
 public abstract class FarmBlockMixin extends Block {
 
     @Shadow
-    public static void setToDirt(BlockState state, World world, BlockPos pos) {
+    public static void setToDirt(Entity entity, BlockState state, World world, BlockPos pos) {
 
     }
 
@@ -64,15 +65,15 @@ public abstract class FarmBlockMixin extends Block {
         super(settings);
     }
 
-    @Redirect(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
-    public void onLandedUpon(BlockState blockState, World world, BlockPos blockPos) {
-        if(!world.isClient()) {
+    @Redirect(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onLandedUpon(Lnet/minecraft/world/World;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;F)V"))
+    public void onLandedUpon(Block instance, World world, BlockState blockState, BlockPos blockPos, Entity entity, float fallDistance) {
+        if (!world.isClient()) {
             ConfigManager configManager = BetterFarmland.getConfigManager();
 
-            if(!configManager.isPreventBreak()) {
-                setToDirt(blockState, world, blockPos);
+            if (!configManager.isPreventBreak()) {
+                setToDirt(entity, blockState, world, blockPos);
             }
-            if(configManager.isChangeBlock()) {
+            if (configManager.isChangeBlock()) {
                 BlockPos cropPos = blockPos.add(0, 1, 0);
                 BlockState cropBlockState = world.getBlockState(cropPos);
 

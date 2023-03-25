@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022.
+ * Copyright (c) 2022-2023.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,6 +46,7 @@ public class BetterFarmland {
     private static ConfigManager configManager;
 
     public static void init() {
+
         LOGGER.info("Loading BetterFarmland version " + CURRENT_VERSION);
         configManager = new ConfigManager();
 
