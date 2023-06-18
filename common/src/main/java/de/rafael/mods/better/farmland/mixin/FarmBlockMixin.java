@@ -46,6 +46,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -65,8 +67,8 @@ public abstract class FarmBlockMixin extends Block {
         super(settings);
     }
 
-    @Redirect(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onLandedUpon(Lnet/minecraft/world/World;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;F)V"))
-    public void onLandedUpon(Block instance, World world, BlockState blockState, BlockPos blockPos, Entity entity, float fallDistance) {
+    @Redirect(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/entity/Entity;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V"))
+    public void onLandedUpon(@Nullable Entity entity, BlockState blockState, @NotNull World world, BlockPos blockPos) {
         if (!world.isClient()) {
             ConfigManager configManager = BetterFarmland.getConfigManager();
 
@@ -101,7 +103,7 @@ public abstract class FarmBlockMixin extends Block {
                     }
 
                     if(cropBlockState.getBlock() instanceof CropBlock cropBlock) {
-                        int oldAge = cropBlockState.get(cropBlock.getAgeProperty());
+                        int oldAge = cropBlock.getAge(cropBlockState);
 
                         int age;
                         if(blockChange.newAge() == -1) {

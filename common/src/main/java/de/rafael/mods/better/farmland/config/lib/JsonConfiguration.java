@@ -37,6 +37,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -88,7 +90,8 @@ public class JsonConfiguration {
 
     }
 
-    public static JsonConfiguration loadConfig(File folder, String fileName) {
+    @Contract("_, _ -> new")
+    public static @NotNull JsonConfiguration loadConfig(@NotNull File folder, String fileName) {
 
         if(!folder.exists()) {
             folder.mkdirs();

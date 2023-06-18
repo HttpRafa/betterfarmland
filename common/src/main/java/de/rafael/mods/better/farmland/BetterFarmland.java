@@ -46,7 +46,6 @@ public class BetterFarmland {
     private static ConfigManager configManager;
 
     public static void init() {
-
         LOGGER.info("Loading BetterFarmland version " + CURRENT_VERSION);
         configManager = new ConfigManager();
 

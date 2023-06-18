@@ -33,15 +33,20 @@ package de.rafael.mods.better.forge.handler;
 //------------------------------
 
 import de.rafael.mods.better.farmland.logic.UseBlockLogic;
+import net.minecraft.util.ActionResult;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
 
 public class BlockUseEventHandler {
 
     @SubscribeEvent
-    public void onUse(PlayerInteractEvent.RightClickBlock rightClickBlock) {
-        rightClickBlock.setCancellationResult(UseBlockLogic.interact(rightClickBlock.getLevel(), rightClickBlock.getHand(), rightClickBlock.getHitVec()));
-        rightClickBlock.setCanceled(true);
+    public void onUse(PlayerInteractEvent.@NotNull RightClickBlock rightClickBlock) {
+        var actionResult = UseBlockLogic.interact(rightClickBlock.getLevel(), rightClickBlock.getHand(), rightClickBlock.getHitVec());
+        if(actionResult == ActionResult.SUCCESS) {
+            rightClickBlock.setCancellationResult(actionResult);
+            rightClickBlock.setCanceled(true);
+        }
     }
 
 }

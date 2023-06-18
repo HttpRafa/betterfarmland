@@ -45,16 +45,17 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 
 public class UseBlockLogic {
 
-    public static ActionResult interact(World world, Hand hand, BlockHitResult hitResult) {
+    public static ActionResult interact(@NotNull World world, Hand hand, BlockHitResult hitResult) {
         if(!world.isClient() && hand == Hand.MAIN_HAND && world instanceof ServerWorld serverWorld) {
             BlockState blockState = world.getBlockState(hitResult.getBlockPos());
-            if (blockState.getBlock() instanceof CropBlock cropBlock && blockState.get(cropBlock.getAgeProperty()) == cropBlock.getMaxAge()) {
+            if (blockState.getBlock() instanceof CropBlock cropBlock && cropBlock.getAge(blockState) == cropBlock.getMaxAge()) {
                 List<ItemStack> itemStacks = Block.getDroppedStacks(blockState, serverWorld, hitResult.getBlockPos(), null);
                 Optional<ItemStack> seedStack = itemStacks.stream().filter(itemStack -> itemStack.isOf(((CropBlockInvoker)cropBlock).invokeGetSeedsItem().asItem())).findFirst();
                 if(seedStack.isPresent()) {

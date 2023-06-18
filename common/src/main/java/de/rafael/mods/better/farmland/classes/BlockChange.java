@@ -35,11 +35,14 @@ package de.rafael.mods.better.farmland.classes;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.sound.SoundEvent;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 public record BlockChange(ChangeSound sound, Block from, Block to, ChangeDrop drop, int newAge) {
 
+    @Contract(pure = true)
     @Override
-    public String toString() {
+    public @NotNull String toString() {
         return "BlockChange{" +
                 "sound=" + sound +
                 ", from=" + from +
@@ -51,8 +54,9 @@ public record BlockChange(ChangeSound sound, Block from, Block to, ChangeDrop dr
 
     public record ChangeSound(SoundEvent sound, float soundVolume, float soundPitch) {
 
+        @Contract(pure = true)
         @Override
-        public String toString() {
+        public @NotNull String toString() {
             return "ChangeSound{" +
                     "sound=" + sound +
                     ", soundVolume=" + soundVolume +
@@ -64,8 +68,9 @@ public record BlockChange(ChangeSound sound, Block from, Block to, ChangeDrop dr
 
     public record ChangeDrop(Item item, int amount) {
 
+        @Contract(pure = true)
         @Override
-        public String toString() {
+        public @NotNull String toString() {
             return "ChangeDrop{" +
                     "item=" + item +
                     ", amount=" + amount +
